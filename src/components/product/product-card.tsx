@@ -18,7 +18,7 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <Card className='flex flex-col overflow-hidden h-full group'>
+    <Card className='flex flex-col overflow-hidden h-full group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1'>
       <CardHeader className='p-0 relative aspect-square overflow-hidden'>
         <Link href={`/products/${product.id}`} aria-label={`View details for ${product.name}`}>
           <Image

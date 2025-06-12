@@ -2,7 +2,7 @@ import Image from 'next/image';
 import type { Product } from '@/types/app';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, AlertTriangle } from 'lucide-react'; // Added AlertTriangle for consistency
 import Link from 'next/link';
 
 interface ProductPageProps {
@@ -44,6 +44,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   if (!product) {
     return (
       <div className='container mx-auto px-4 py-8 text-center'>
+        <AlertTriangle className='mx-auto h-12 w-12 text-destructive mb-4' />
         <h1 className='text-2xl font-semibold mb-4'>Product Not Found</h1>
         <p className='text-muted-foreground mb-6'>Sorry, we couldn't find the product you're looking for.</p>
         <Button asChild>
@@ -64,27 +65,21 @@ export default async function ProductPage({ params }: ProductPageProps) {
               alt={product.name}
               fill
               className='object-cover'
-              priority // Prioritize the main product image
+              priority
             />
           </div>
           {product.images.length > 1 && (
             <div className='grid grid-cols-3 sm:grid-cols-4 md:grid-cols-3 lg:grid-cols-4 gap-2'>
-              {product.images.slice(0, 4).map(
-                (
-                  img,
-                  index, // Show up to 4 thumbnails
-                ) => (
-                  <div key={index} className='aspect-square relative overflow-hidden rounded-md border'>
-                    <Image
-                      src={img || '/placeholder.svg?width=150&height=150&query=thumbnail'}
-                      alt={`${product.name} thumbnail ${index + 1}`}
-                      fill
-                      className='object-cover hover:scale-105 transition-transform'
-                    />
-                    {/* TODO: Add click handler to change main image */}
-                  </div>
-                ),
-              )}
+              {product.images.slice(0, 4).map((img, index) => (
+                <div key={index} className='aspect-square relative overflow-hidden rounded-md border'>
+                  <Image
+                    src={img || '/placeholder.svg?width=150&height=150&query=thumbnail'}
+                    alt={`${product.name} thumbnail ${index + 1}`}
+                    fill
+                    className='object-cover hover:scale-105 transition-transform'
+                  />
+                </div>
+              ))}
             </div>
           )}
         </div>
@@ -107,9 +102,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <div className='flex flex-wrap gap-2'>
                 {product.categories.map(categorySlug => (
                   <Button key={categorySlug} variant='outline' size='sm' asChild>
-                    {/* Assuming category slugs match category names for now, or link to /categories/[slug] */}
-                    <Link href={`/categories/${categorySlug.replace('category-', '')}`}>
-                      {categorySlug.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    {/* Link directly using the categorySlug */}
+                    <Link href={`/categories/${categorySlug}`}>
+                      {/* Display logic for category name from slug */}
+                      {categorySlug.replace('category-', 'Category ').replace(/\b\w/g, l => l.toUpperCase())}
                     </Link>
                   </Button>
                 ))}
@@ -118,8 +114,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
           )}
 
           <div className='mt-auto'>
-            {' '}
-            {/* Pushes button to the bottom */}
             <Button size='lg' className='w-full'>
               <ShoppingCart className='mr-2 h-5 w-5' /> Add to Cart
             </Button>
@@ -129,16 +123,3 @@ export default async function ProductPage({ params }: ProductPageProps) {
     </div>
   );
 }
-
-// Optional: Generate static paths if you know all product IDs at build time
-// export async function generateStaticParams() {
-//   const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/products`;
-//   const res = await fetch(apiUrl);
-//   const productsData = await res.json();
-//   if (productsData.success && Array.isArray(productsData.data)) {
-//     return productsData.data.map((product: Product) => ({
-//       productId: product.id,
-//     }));
-//   }
-//   return [];
-// }
