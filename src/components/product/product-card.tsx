@@ -1,19 +1,19 @@
-'use client'; // This component now uses client-side context
+'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Product } from '@/types/app';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'; // buttonVariants is no longer needed here
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { ShoppingCart, Eye } from 'lucide-react';
-import { useCart } from '@/context/cart-context'; // Import useCart
+import { ShoppingCart } from 'lucide-react'; // Eye icon is no longer needed
+import { useCart } from '@/context/cart-context';
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const { addToCart } = useCart(); // Use the cart context
+  const { addToCart } = useCart();
 
   const formatPrice = (price: { amount: number; currency: string }) => {
     return new Intl.NumberFormat('en-US', {
@@ -24,13 +24,13 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const handleAddToCart = () => {
     addToCart(product);
-    // Optionally, show a toast notification here
     console.log(`${product.name} added to cart`);
   };
 
   return (
     <Card className='flex flex-col overflow-hidden h-full group transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1'>
       <CardHeader className='p-0 relative aspect-square overflow-hidden'>
+        {/* Product image is a link to the product detail page */}
         <Link href={`/products/${product.id}`} aria-label={`View details for ${product.name}`}>
           <Image
             src={product.images[0] || '/placeholder.svg?width=400&height=400&query=product+image'}
@@ -42,6 +42,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </Link>
       </CardHeader>
       <CardContent className='p-4 flex-grow'>
+        {/* Product title is also a link to the product detail page */}
         <Link href={`/products/${product.id}`} className='hover:underline'>
           <CardTitle className='text-lg font-semibold leading-tight mb-1 group-hover:text-primary transition-colors'>
             {product.name}
@@ -49,13 +50,9 @@ export function ProductCard({ product }: ProductCardProps) {
         </Link>
         <p className='text-primary font-medium text-base'>{formatPrice(product.price)}</p>
       </CardContent>
-      <CardFooter className='p-4 pt-0 flex flex-col sm:flex-row gap-2'>
-        <Button asChild variant='outline' className='w-full sm:w-auto flex-grow'>
-          <Link href={`/products/${product.id}`}>
-            <Eye className='mr-2 h-4 w-4' /> View Details
-          </Link>
-        </Button>
-        <Button onClick={handleAddToCart} className='w-full sm:w-auto flex-grow'>
+      <CardFooter className='p-4 pt-0'>
+        {/* "Add to Cart" button now takes full width of the footer */}
+        <Button onClick={handleAddToCart} className='w-full'>
           <ShoppingCart className='mr-2 h-4 w-4' /> Add to Cart
         </Button>
       </CardFooter>

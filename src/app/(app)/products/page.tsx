@@ -1,6 +1,6 @@
 import { ProductCard } from '@/components/product/product-card';
 import type { Product } from '@/types/app';
-import { PackageSearch } from 'lucide-react'; // Icon for empty state
+import { PackageSearch } from 'lucide-react';
 
 async function getProducts(): Promise<Product[]> {
   const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/products`;
@@ -26,7 +26,8 @@ export default async function ProductsPage() {
   const products = await getProducts();
 
   return (
-    <div className='container mx-auto px-4 py-8'>
+    // This container div now centers the content based on our tailwind.config.ts
+    <div className='container'>
       <div className='mb-8 text-center md:text-left'>
         <h1 className='text-3xl md:text-4xl font-bold tracking-tight'>All Products</h1>
       </div>

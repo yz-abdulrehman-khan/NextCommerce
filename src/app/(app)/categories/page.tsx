@@ -1,6 +1,6 @@
 import { CategoryCard } from '@/components/category/category-card';
 import type { Category } from '@/types/app';
-import { PackageSearch } from 'lucide-react'; // Icon for empty state
+import { PackageSearch } from 'lucide-react';
 
 async function getCategories(): Promise<Category[]> {
   const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/categories`;
@@ -26,7 +26,7 @@ export default async function CategoriesPage() {
   const categories = await getCategories();
 
   return (
-    <div className='container mx-auto px-4 py-8'>
+    <div className='container'>
       <div className='mb-8 text-center md:text-left'>
         <h1 className='text-3xl md:text-4xl font-bold tracking-tight'>Product Categories</h1>
       </div>

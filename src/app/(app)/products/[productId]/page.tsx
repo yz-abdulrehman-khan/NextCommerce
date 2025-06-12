@@ -1,13 +1,13 @@
-'use client'; // This page now uses client-side context for the "Add to Cart" button
+'use client';
 
 import Image from 'next/image';
-import type { Product } from '@/types/app'; // Keep this type import
+import type { Product } from '@/types/app';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ShoppingCart, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
-import { useCart } from '@/context/cart-context'; // Import useCart
-import { useEffect, useState } from 'react'; // For fetching data in client component
+import { useCart } from '@/context/cart-context';
+import { useEffect, useState } from 'react';
 
 interface ProductPageProps {
   params: {
@@ -15,7 +15,6 @@ interface ProductPageProps {
   };
 }
 
-// Data fetching function remains outside, can be called by client component
 async function getProduct(productId: string): Promise<Product | null> {
   const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}`;
   try {
@@ -61,37 +60,38 @@ export default function ProductPage({ params }: ProductPageProps) {
   const handleAddToCart = () => {
     if (product) {
       addToCart(product);
-      // Optionally, show a toast notification here
       console.log(`${product.name} added to cart`);
     }
   };
 
   if (isLoading) {
     return (
-      <div className='container mx-auto px-4 py-8 text-center'>
-        <p className='text-xl text-muted-foreground'>Loading product details...</p>
-        {/* TODO: Implement a proper skeleton loader here */}
+      <div className='container'>
+        <div className='text-center'>
+          <p className='text-xl text-muted-foreground'>Loading product details...</p>
+        </div>
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className='container mx-auto px-4 py-8 text-center'>
-        <AlertTriangle className='mx-auto h-12 w-12 text-destructive mb-4' />
-        <h1 className='text-2xl font-semibold mb-4'>Product Not Found</h1>
-        <p className='text-muted-foreground mb-6'>Sorry, we couldn't find the product you're looking for.</p>
-        <Button asChild>
-          <Link href='/products'>Back to Products</Link>
-        </Button>
+      <div className='container'>
+        <div className='text-center'>
+          <AlertTriangle className='mx-auto h-12 w-12 text-destructive mb-4' />
+          <h1 className='text-2xl font-semibold mb-4'>Product Not Found</h1>
+          <p className='text-muted-foreground mb-6'>Sorry, we couldn't find the product you're looking for.</p>
+          <Button asChild>
+            <Link href='/products'>Back to Products</Link>
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className='container mx-auto px-4 py-8'>
+    <div className='container'>
       <div className='grid md:grid-cols-2 gap-8 lg:gap-12'>
-        {/* Image Gallery Section */}
         <div>
           <div className='aspect-square relative overflow-hidden rounded-lg border mb-4'>
             <Image
@@ -118,7 +118,6 @@ export default function ProductPage({ params }: ProductPageProps) {
           )}
         </div>
 
-        {/* Product Details Section */}
         <div className='flex flex-col'>
           <h1 className='text-3xl lg:text-4xl font-bold tracking-tight mb-3'>{product.name}</h1>
           <p className='text-2xl font-semibold text-primary mb-4'>{formatPrice(product.price)}</p>

@@ -6,13 +6,12 @@ import { AlertTriangle, PackageSearch } from 'lucide-react';
 
 interface CategorySlugPageProps {
   params: {
-    categorySlug: string; // Changed from categoryId
+    categorySlug: string;
   };
 }
 
-// Fetches ALL categories and then filters by slug
 async function getCategoryDetailsBySlug(slug: string): Promise<Category | null> {
-  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/categories`; // Fetch all categories
+  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/categories`;
   try {
     const res = await fetch(apiUrl, { cache: 'no-store' });
     if (!res.ok) {
@@ -53,27 +52,28 @@ async function getProductsByCategory(categorySlug: string): Promise<Product[]> {
   }
 }
 
-// Renamed component for clarity, e.g., CategoryBySlugPage or similar
 export default async function CategorySlugPage({ params }: CategorySlugPageProps) {
   const category = await getCategoryDetailsBySlug(params.categorySlug);
 
   if (!category) {
     return (
-      <div className='container mx-auto px-4 py-8 text-center'>
-        <AlertTriangle className='mx-auto h-12 w-12 text-destructive mb-4' />
-        <h1 className='text-2xl font-semibold mb-4'>Category Not Found</h1>
-        <p className='text-muted-foreground mb-6'>Sorry, we couldn't find the category for slug: "{params.categorySlug}".</p>
-        <Button asChild>
-          <Link href='/categories'>Back to Categories</Link>
-        </Button>
+      <div className='container'>
+        <div className='text-center'>
+          <AlertTriangle className='mx-auto h-12 w-12 text-destructive mb-4' />
+          <h1 className='text-2xl font-semibold mb-4'>Category Not Found</h1>
+          <p className='text-muted-foreground mb-6'>Sorry, we couldn't find the category for slug: "{params.categorySlug}".</p>
+          <Button asChild>
+            <Link href='/categories'>Back to Categories</Link>
+          </Button>
+        </div>
       </div>
     );
   }
 
-  const products = await getProductsByCategory(category.slug); // category.slug will be params.categorySlug
+  const products = await getProductsByCategory(category.slug);
 
   return (
-    <div className='container mx-auto px-4 py-8'>
+    <div className='container'>
       <div className='mb-8 text-center md:text-left'>
         <h1 className='text-3xl md:text-4xl font-bold tracking-tight mb-2'>{category.name}</h1>
         {category.description && (

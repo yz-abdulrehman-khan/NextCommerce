@@ -1,6 +1,5 @@
 import type { Config } from 'tailwindcss';
 import { default as colors } from 'tailwindcss/colors';
-import { fontFamily } from 'tailwindcss/defaultTheme';
 
 const config: Config = {
   darkMode: ['class'],
@@ -8,21 +7,39 @@ const config: Config = {
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    '*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
+    // Add this container configuration
+    container: {
+      center: true,
+      padding: '1rem', // 2rem on larger screens
+      screens: {
+        '2xl': '1280px', // Set max-width for the container
+      },
+    },
     extend: {
       fontFamily: {
-        sans: ['var(--font-sans)', ...fontFamily.sans],
+        sans: [
+          'ui-sans-serif',
+          'system-ui',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          '"Segoe UI"',
+          'Roboto',
+          '"Helvetica Neue"',
+          'Arial',
+          '"Noto Sans"',
+          'sans-serif',
+          '"Apple Color Emoji"',
+          '"Segoe UI Emoji"',
+          '"Segoe UI Symbol"',
+          '"Noto Color Emoji"',
+        ],
       },
       colors: {
-        // base theme colors, see: https://ui.shadcn.com/themes
-        // change this along with shadcn/ui colors in "@/app/globals.css" to change the theme globally
         theme: colors.zinc,
-
-        // brand colors, see: "@/app/globals.css"
         'brand-xxx': 'hsl(var(--brand-xxx))',
-
-        // shadcn/ui colors, see: https://ui.shadcn.com/docs/theming
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {
