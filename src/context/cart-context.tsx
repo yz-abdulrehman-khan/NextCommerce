@@ -1,14 +1,14 @@
-'use client'; // Context needs to be a client component
+'use client';
 
 import type { Product } from '@/types/app';
-import { createContext, useContext, useState, type ReactNode, useCallback } from 'react';
+import { createContext, useContext, useState, type ReactNode, useCallback, useEffect } from 'react';
 
-// Define the shape of a cart item
+const LOCAL_STORAGE_CART_KEY = 'eCommerceAppCart';
+
 export interface CartItem extends Product {
   quantity: number;
 }
 
-// Define the shape of the context value
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (product: Product, quantity?: number) => void;
@@ -17,12 +17,11 @@ interface CartContextType {
   clearCart: () => void;
   getCartSubtotal: () => number;
   getTotalItems: () => number;
+  isCartLoaded: boolean; // To indicate if cart has been loaded from storage
 }
 
-// Create the context with a default undefined value
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-// Custom hook to use the CartContext
 export function useCart() {
   const context = useContext(CartContext);
   if (context === undefined) {
@@ -31,22 +30,55 @@ export function useCart() {
   return context;
 }
 
-// CartProvider component
 interface CartProviderProps {
   children: ReactNode;
 }
 
 export function CartProvider({ children }: CartProviderProps) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [isCartLoaded, setIsCartLoaded] = useState(false); // New state
+
+  // Effect to load cart from Local Storage on initial mount
+  useEffect(() => {
+    try {
+      const storedCart = localStorage.getItem(LOCAL_STORAGE_CART_KEY);
+      if (storedCart) {
+        const parsedCart = JSON.parse(storedCart) as CartItem[];
+        // Basic validation: check if it's an array
+        if (Array.isArray(parsedCart)) {
+          setCartItems(parsedCart);
+        } else {
+          console.warn('Invalid cart data found in local storage. Initializing with empty cart.');
+          setCartItems([]);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load cart from local storage:', error);
+      // Initialize with empty cart in case of error (e.g. JSON parsing error)
+      setCartItems([]);
+    }
+    setIsCartLoaded(true); // Mark cart as loaded
+  }, []); // Empty dependency array ensures this runs only once on mount
+
+  // Effect to save cart to Local Storage whenever cartItems change
+  useEffect(() => {
+    // Only save to localStorage if the cart has been loaded to prevent overwriting
+    // the stored cart with an empty initial state before hydration.
+    if (isCartLoaded) {
+      try {
+        localStorage.setItem(LOCAL_STORAGE_CART_KEY, JSON.stringify(cartItems));
+      } catch (error) {
+        console.error('Failed to save cart to local storage:', error);
+      }
+    }
+  }, [cartItems, isCartLoaded]); // Run whenever cartItems or isCartLoaded changes
 
   const addToCart = useCallback((product: Product, quantity = 1) => {
     setCartItems(prevItems => {
       const existingItem = prevItems.find(item => item.id === product.id);
       if (existingItem) {
-        // If item exists, update its quantity
         return prevItems.map(item => (item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item));
       } else {
-        // If item doesn't exist, add it to the cart
         return [...prevItems, { ...product, quantity }];
       }
     });
@@ -59,7 +91,6 @@ export function CartProvider({ children }: CartProviderProps) {
   const updateQuantity = useCallback(
     (productId: string, newQuantity: number) => {
       if (newQuantity <= 0) {
-        // If new quantity is 0 or less, remove the item
         removeFromCart(productId);
       } else {
         setCartItems(prevItems => prevItems.map(item => (item.id === productId ? { ...item, quantity: newQuantity } : item)));
@@ -88,6 +119,7 @@ export function CartProvider({ children }: CartProviderProps) {
     clearCart,
     getCartSubtotal,
     getTotalItems,
+    isCartLoaded,
   };
 
   return <CartContext.Provider value={contextValue}>{children}</CartContext.Provider>;

@@ -1,20 +1,31 @@
+'use client'; // This component now uses client-side context
+
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Product } from '@/types/app';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShoppingCart, Eye } from 'lucide-react';
+import { useCart } from '@/context/cart-context'; // Import useCart
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const { addToCart } = useCart(); // Use the cart context
+
   const formatPrice = (price: { amount: number; currency: string }) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: price.currency,
     }).format(price.amount);
+  };
+
+  const handleAddToCart = () => {
+    addToCart(product);
+    // Optionally, show a toast notification here
+    console.log(`${product.name} added to cart`);
   };
 
   return (
@@ -44,7 +55,7 @@ export function ProductCard({ product }: ProductCardProps) {
             <Eye className='mr-2 h-4 w-4' /> View Details
           </Link>
         </Button>
-        <Button className='w-full sm:w-auto flex-grow'>
+        <Button onClick={handleAddToCart} className='w-full sm:w-auto flex-grow'>
           <ShoppingCart className='mr-2 h-4 w-4' /> Add to Cart
         </Button>
       </CardFooter>

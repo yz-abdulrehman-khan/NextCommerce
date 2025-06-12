@@ -1,9 +1,13 @@
+'use client'; // This page now uses client-side context for the "Add to Cart" button
+
 import Image from 'next/image';
-import type { Product } from '@/types/app';
+import type { Product } from '@/types/app'; // Keep this type import
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { ShoppingCart, AlertTriangle } from 'lucide-react'; // Added AlertTriangle for consistency
+import { ShoppingCart, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
+import { useCart } from '@/context/cart-context'; // Import useCart
+import { useEffect, useState } from 'react'; // For fetching data in client component
 
 interface ProductPageProps {
   params: {
@@ -11,6 +15,7 @@ interface ProductPageProps {
   };
 }
 
+// Data fetching function remains outside, can be called by client component
 async function getProduct(productId: string): Promise<Product | null> {
   const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}`;
   try {
@@ -38,8 +43,37 @@ const formatPrice = (price: { amount: number; currency: string }) => {
   }).format(price.amount);
 };
 
-export default async function ProductPage({ params }: ProductPageProps) {
-  const product = await getProduct(params.productId);
+export default function ProductPage({ params }: ProductPageProps) {
+  const { addToCart } = useCart();
+  const [product, setProduct] = useState<Product | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadProduct() {
+      setIsLoading(true);
+      const fetchedProduct = await getProduct(params.productId);
+      setProduct(fetchedProduct);
+      setIsLoading(false);
+    }
+    loadProduct();
+  }, [params.productId]);
+
+  const handleAddToCart = () => {
+    if (product) {
+      addToCart(product);
+      // Optionally, show a toast notification here
+      console.log(`${product.name} added to cart`);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className='container mx-auto px-4 py-8 text-center'>
+        <p className='text-xl text-muted-foreground'>Loading product details...</p>
+        {/* TODO: Implement a proper skeleton loader here */}
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -102,9 +136,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <div className='flex flex-wrap gap-2'>
                 {product.categories.map(categorySlug => (
                   <Button key={categorySlug} variant='outline' size='sm' asChild>
-                    {/* Link directly using the categorySlug */}
                     <Link href={`/categories/${categorySlug}`}>
-                      {/* Display logic for category name from slug */}
                       {categorySlug.replace('category-', 'Category ').replace(/\b\w/g, l => l.toUpperCase())}
                     </Link>
                   </Button>
@@ -114,7 +146,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           )}
 
           <div className='mt-auto'>
-            <Button size='lg' className='w-full'>
+            <Button size='lg' className='w-full' onClick={handleAddToCart}>
               <ShoppingCart className='mr-2 h-5 w-5' /> Add to Cart
             </Button>
           </div>
