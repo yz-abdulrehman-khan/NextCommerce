@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { ShoppingBag, Trash2 } from 'lucide-react'; // X icon no longer needed here
 
 const formatPrice = (price: number, currency = 'USD') => {
@@ -115,9 +115,11 @@ export function CartSheet() {
                 <p className='text-sm text-muted-foreground flex-shrink-0'>Subtotal</p>
                 <p className='text-lg font-semibold text-right flex-1 min-w-0 break-words'>{formatPrice(subtotal)}</p>
               </div>
-              <Button asChild className='w-full'>
-                <Link href='/checkout'>Proceed to Checkout</Link>
-              </Button>
+              <SheetClose asChild>
+                <Button asChild className='w-full'>
+                  <Link href='/checkout'>Proceed to Checkout</Link>
+                </Button>
+              </SheetClose>
             </SheetFooter>
           </>
         )}
