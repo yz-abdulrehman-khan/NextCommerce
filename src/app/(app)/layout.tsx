@@ -1,5 +1,6 @@
 import type React from 'react';
 import { Header } from '@/components/layout/header';
+import { Footer } from '~/src/components/layout/footer';
 
 // if any changes are needed fo app layout, they should be made here
 export default function AppLayout({
@@ -12,6 +13,7 @@ export default function AppLayout({
     <div className='flex flex-col min-h-screen'>
       <Header /> {/* Added Header component */}
       <main className='flex-grow'>{children}</main> {/* Wrapped children in main and added flex-grow */}
+      <Footer /> {/* Added Footer component */}
     </div>
   );
 }
