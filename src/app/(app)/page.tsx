@@ -1,3 +1,12 @@
+// This page displays all products.
+// Strategy: Incremental Static Regeneration (ISR).
+// Products can be numerous and might update (price, new additions).
+// ISR allows serving a statically generated page for speed and SEO,
+// while revalidating and updating the page in the background periodically.
+// A revalidate time of 1 hour (3600 seconds) is chosen as a balance.
+// For a real e-commerce site, this might be shorter (e.g., 5-15 minutes)
+// or triggered by on-demand revalidation when products are updated in a CMS.
+
 import { ProductCard } from '@/components/product/product-card';
 import type { Product } from '@/types/app';
 import { PackageSearch } from 'lucide-react';
@@ -5,7 +14,7 @@ import { PackageSearch } from 'lucide-react';
 async function getProducts(): Promise<Product[]> {
   const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/products`;
   try {
-    const res = await fetch(apiUrl, { cache: 'no-store' });
+    const res = await fetch(apiUrl, { next: { revalidate: 3600 } }); // ISR: Revalidate every 1 hour
     if (!res.ok) {
       console.error('Failed to fetch products, status:', res.status);
       return [];

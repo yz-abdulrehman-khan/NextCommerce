@@ -1,3 +1,11 @@
+// This page displays a list of all product categories.
+// Strategy: Incremental Static Regeneration (ISR) with a long revalidation period.
+// Categories typically change infrequently.
+// Using ISR with a long revalidation (e.g., 1 day / 86400 seconds) ensures the page is
+// fast (served from cache) and SEO-friendly, while still allowing for updates
+// if categories are added/modified.
+// If categories were guaranteed to only change at build time, pure SSG (default fetch cache) would be fine.
+
 import { CategoryCard } from '@/components/category/category-card';
 import type { Category } from '@/types/app';
 import { PackageSearch } from 'lucide-react';
@@ -5,7 +13,7 @@ import { PackageSearch } from 'lucide-react';
 async function getCategories(): Promise<Category[]> {
   const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/categories`;
   try {
-    const res = await fetch(apiUrl, { cache: 'no-store' });
+    const res = await fetch(apiUrl, { next: { revalidate: 86400 } }); // ISR: Revalidate every 1 day
     if (!res.ok) {
       console.error('Failed to fetch categories, status:', res.status);
       return [];

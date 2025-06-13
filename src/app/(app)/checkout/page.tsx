@@ -1,3 +1,11 @@
+// This page handles the checkout process.
+// Strategy: Client-Side Rendering (CSR).
+// The checkout process is highly interactive and relies heavily on client-side state,
+// particularly the cart context (items in cart, subtotal) and form inputs.
+// Data isn't typically fetched server-side to build this page's initial structure.
+// SEO is not a concern. The primary focus is a smooth, interactive user experience.
+// All data submission (placing the order) is handled via client-side API calls.
+
 'use client';
 
 import React, { useState } from 'react';
@@ -85,7 +93,6 @@ export default function CheckoutPage() {
       let processedValue = value;
       if (id === 'cardNumber') {
         processedValue = value.replace(/\D/g, '').slice(0, 19); // Allow up to 19 for potential spaces
-        // Add spaces for readability (optional, can be done with a formatter library too)
         processedValue = processedValue.replace(/(.{4})/g, '$1 ').trim();
       } else if (id === 'expiryDate') {
         processedValue = value.replace(/\D/g, '').slice(0, 4);
@@ -108,7 +115,6 @@ export default function CheckoutPage() {
     const shippingData = shippingForm;
     const paymentData = paymentForm;
 
-    // Shipping Validation
     if (!shippingData.fullName.trim()) errors.fullName = 'Full name is required.';
     if (!shippingData.email.trim()) {
       errors.email = 'Email is required.';
@@ -124,8 +130,6 @@ export default function CheckoutPage() {
       errors.zip = 'Please enter a valid ZIP code (e.g., 12345 or 12345-6789).';
     }
     if (!shippingData.country.trim()) errors.country = 'Country is required.';
-
-    // Payment Validation (UI Only)
     if (!paymentData.cardName.trim()) errors.cardName = 'Name on card is required.';
     const rawCardNumber = paymentData.cardNumber.replace(/\s/g, '');
     if (!rawCardNumber) {
@@ -259,7 +263,6 @@ export default function CheckoutPage() {
       <form onSubmit={handleSubmitOrder} noValidate>
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12'>
           <div className='lg:col-span-2 space-y-8'>
-            {/* Shipping Information Card */}
             <Card>
               <CardHeader>
                 <CardTitle className='text-2xl flex items-center gap-2'>
@@ -267,7 +270,6 @@ export default function CheckoutPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className='space-y-6'>
-                {/* Full Name */}
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4'>
                   <div className='space-y-1.5'>
                     <Label htmlFor='fullName'>Full Name</Label>
@@ -286,7 +288,6 @@ export default function CheckoutPage() {
                       </p>
                     )}
                   </div>
-                  {/* Email */}
                   <div className='space-y-1.5'>
                     <Label htmlFor='email'>Email Address</Label>
                     <Input
@@ -306,7 +307,6 @@ export default function CheckoutPage() {
                     )}
                   </div>
                 </div>
-                {/* Address */}
                 <div className='space-y-1.5'>
                   <Label htmlFor='address'>Street Address</Label>
                   <Input
@@ -324,7 +324,6 @@ export default function CheckoutPage() {
                     </p>
                   )}
                 </div>
-                {/* Apartment */}
                 <div className='space-y-1.5'>
                   <Label htmlFor='apartment'>Apartment, suite, etc. (Optional)</Label>
                   <Input
@@ -334,7 +333,6 @@ export default function CheckoutPage() {
                     onChange={e => handleInputChange(e, 'shipping')}
                   />
                 </div>
-                {/* City, State, Zip */}
                 <div className='grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4'>
                   <div className='space-y-1.5'>
                     <Label htmlFor='city'>City</Label>
@@ -388,7 +386,6 @@ export default function CheckoutPage() {
                     )}
                   </div>
                 </div>
-                {/* Country */}
                 <div className='space-y-1.5'>
                   <Label htmlFor='country'>Country</Label>
                   <Input
@@ -406,7 +403,6 @@ export default function CheckoutPage() {
                     </p>
                   )}
                 </div>
-                {/* Phone */}
                 <div className='space-y-1.5'>
                   <Label htmlFor='phone'>Phone Number (Optional)</Label>
                   <Input
@@ -420,7 +416,6 @@ export default function CheckoutPage() {
               </CardContent>
             </Card>
 
-            {/* Payment Details Card */}
             <Card>
               <CardHeader>
                 <CardTitle className='text-2xl flex items-center gap-2'>
@@ -429,7 +424,6 @@ export default function CheckoutPage() {
                 <CardDescription>Enter your payment information. For UI demonstration only.</CardDescription>
               </CardHeader>
               <CardContent className='space-y-6'>
-                {/* Card Name */}
                 <div className='space-y-1.5'>
                   <Label htmlFor='cardName'>Name on Card</Label>
                   <Input
@@ -447,7 +441,6 @@ export default function CheckoutPage() {
                     </p>
                   )}
                 </div>
-                {/* Card Number */}
                 <div className='space-y-1.5'>
                   <Label htmlFor='cardNumber'>Card Number</Label>
                   <Input
@@ -458,7 +451,7 @@ export default function CheckoutPage() {
                     className={cn(formErrors.cardNumber && 'border-destructive')}
                     aria-invalid={!!formErrors.cardNumber}
                     aria-describedby='cardNumber-error'
-                    maxLength={23} /* Max length with spaces */
+                    maxLength={23}
                   />
                   {formErrors.cardNumber && (
                     <p id='cardNumber-error' className='text-sm text-destructive mt-1'>
@@ -466,7 +459,6 @@ export default function CheckoutPage() {
                     </p>
                   )}
                 </div>
-                {/* Expiry Date & CVC */}
                 <div className='grid grid-cols-2 gap-x-6 gap-y-4'>
                   <div className='space-y-1.5'>
                     <Label htmlFor='expiryDate'>Expiry Date</Label>
@@ -516,7 +508,6 @@ export default function CheckoutPage() {
             </Card>
           </div>
 
-          {/* Order Summary Card (Right Column) */}
           <div className='lg:col-span-1'>
             <Card className='sticky top-24'>
               <CardHeader>

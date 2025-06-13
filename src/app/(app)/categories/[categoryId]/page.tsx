@@ -1,3 +1,10 @@
+// This page displays products within a specific category.
+// Strategy: Incremental Static Regeneration (ISR).
+// - Category details: Fetched with a long revalidation period (1 day), as they change infrequently.
+// - Products within the category: Fetched with a shorter revalidation period (1 hour),
+//   similar to the main products page, as product availability or details might change more often.
+// This provides a good balance of performance, SEO, and data freshness.
+
 import type { Category, Product } from '@/types/app';
 import { ProductCard } from '@/components/product/product-card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +13,7 @@ import { AlertTriangle, PackageSearch } from 'lucide-react';
 
 interface CategoryPageProps {
   params: {
-    categoryId: string; // Changed from categorySlug to categoryId
+    categoryId: string;
   };
 }
 
@@ -14,7 +21,7 @@ interface CategoryPageProps {
 async function getCategoryDetailsById(categoryId: string): Promise<Category | null> {
   const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/categories/${categoryId}`;
   try {
-    const res = await fetch(apiUrl, { cache: 'no-store' });
+    const res = await fetch(apiUrl, { next: { revalidate: 86400 } }); // ISR: Revalidate category details every 1 day
     if (!res.ok) {
       console.error(`Failed to fetch category details for ID ${categoryId}, status:`, res.status);
       return null;
@@ -31,11 +38,11 @@ async function getCategoryDetailsById(categoryId: string): Promise<Category | nu
   }
 }
 
-// Fetches products by category slug (since products are linked via slugs in the current model)
+// Fetches products by category slug
 async function getProductsByCategorySlug(categorySlug: string): Promise<Product[]> {
   const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/products?category=${categorySlug}`;
   try {
-    const res = await fetch(apiUrl, { cache: 'no-store' });
+    const res = await fetch(apiUrl, { next: { revalidate: 3600 } }); // ISR: Revalidate products in category every 1 hour
     if (!res.ok) {
       console.error(`Failed to fetch products for category slug ${categorySlug}, status:`, res.status);
       return [];
@@ -53,12 +60,9 @@ async function getProductsByCategorySlug(categorySlug: string): Promise<Product[
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
-  // Fetch category details using categoryId
   const category = await getCategoryDetailsById(params.categoryId);
 
   if (!category) {
-    // Initial check if category itself couldn't be fetched
-    // This case might be hit if the ID is invalid or API fails for category details
     return (
       <div className='container py-10 text-center'>
         <AlertTriangle className='mx-auto h-12 w-12 text-destructive mb-4' />
@@ -71,7 +75,6 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     );
   }
 
-  // Fetch products using the slug from the fetched category details
   const products = await getProductsByCategorySlug(category.slug);
 
   return (
@@ -98,16 +101,3 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     </div>
   );
 }
-
-// Optional: Add a loading.tsx file in the [categoryId] directory for better UX
-// e.g., src/app/(app)/categories/[categoryId]/loading.tsx
-/*
-export default function Loading() {
-  return (
-    <div className="container py-10 text-center">
-      <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary mb-4" />
-      <p className="text-xl text-muted-foreground">Loading category products...</p>
-    </div>
-  );
-}
-*/

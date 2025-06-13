@@ -91,6 +91,10 @@ body {
   /**
    * Custom styles:
    */
+  html {
+    scrollbar-width: none;
+  }
+
   html,
   body,
   :root,
@@ -111,12 +115,16 @@ body {
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: rgba(0,0,0,.35);
+    background-color: rgba(0, 0, 0, 0.35);
     background-clip: padding-box;
     border-width: 2px;
     border-style: solid;
     border-color: transparent;
     border-radius: 5px;
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
   }
 
   ::-webkit-scrollbar-track {
