@@ -3,9 +3,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Product } from '@/types/app';
-import { Button } from '@/components/ui/button'; // buttonVariants is no longer needed here
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { ShoppingCart } from 'lucide-react'; // Eye icon is no longer needed
+import { ShoppingCart } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
 
 interface ProductCardProps {
@@ -51,7 +51,6 @@ export function ProductCard({ product }: ProductCardProps) {
         <p className='text-primary font-medium text-base'>{formatPrice(product.price)}</p>
       </CardContent>
       <CardFooter className='p-4 pt-0'>
-        {/* "Add to Cart" button now takes full width of the footer */}
         <Button onClick={handleAddToCart} className='w-full'>
           <ShoppingCart className='mr-2 h-4 w-4' /> Add to Cart
         </Button>

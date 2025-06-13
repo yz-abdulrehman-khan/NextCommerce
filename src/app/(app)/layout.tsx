@@ -15,7 +15,8 @@ export default function AppLayout({
     <CartProvider>
       <div className='relative flex min-h-screen flex-col'>
         <Header />
-        <main className='flex-1 py-8 md:py-12'>{children}</main>
+        {/* main element now wraps PageLayout in individual pages for better semantic structure */}
+        <main className='flex-1'>{children}</main>
         <Footer />
         <Toaster />
       </div>
