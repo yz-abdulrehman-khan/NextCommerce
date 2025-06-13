@@ -136,4 +136,5 @@ In the project directory, you can run:
 
 ---
 
-This README provides a basic overview. Feel free to expand it with more details about specific features, deployment instructions, or contribution guidelines.
+This README provides a basic overview. For more details on architecture, design decisions, and implementation, please refer to the full [Solution Document](https://github.com/yz-abdulrehman-khan/NextCommerce/blob/main/SOLUTION.md).
+
