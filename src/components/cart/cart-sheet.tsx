@@ -1,107 +1,142 @@
-'use client';
+"use client"
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useCart } from '@/context/cart-context';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetTrigger, SheetClose } from '@/components/ui/sheet';
-import { ShoppingBag, Trash2 } from 'lucide-react'; // X icon no longer needed here
+import { useEffect } from "react"
 
-const formatPrice = (price: number, currency = 'USD') => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
+import { useState } from "react"
+
+import Image from "next/image"
+import Link from "next/link"
+import { useCart } from "@/context/cart-context"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet"
+import { ShoppingBag, Trash2 } from "lucide-react"
+import { cn } from "@/lib/utils"
+
+const formatPrice = (price: number, currency = "USD") => {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
     currency: currency,
-  }).format(price);
-};
+  }).format(price)
+}
 
 export function CartSheet() {
-  const { cartItems, removeFromCart, updateQuantity, getCartSubtotal, getTotalItems, isCartLoaded } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, getCartSubtotal, getTotalItems, isCartLoaded } = useCart()
 
-  const subtotal = getCartSubtotal();
-  const totalItems = getTotalItems();
+  const subtotal = getCartSubtotal()
+  const totalItems = getTotalItems()
+
+  const cartIconSize = "h-6 w-6"
+
+  // Determine if the header is dark (using brand-secondary)
+  // This is a bit of a hack for client component. A context or prop would be cleaner.
+  // For now, assume if dark mode is on, header is dark. If light mode, header is brand-secondary.
+  // A better approach would be to pass a prop or use a theme context.
+  const [isHeaderDark, setIsHeaderDark] = useState(false)
+  useEffect(() => {
+    // Check if dark mode is active on the HTML element
+    const isDarkMode = document.documentElement.classList.contains("dark")
+    // In light mode, our header uses brand-secondary which is dark.
+    // In dark mode, our header also uses brand-secondary which is a dark gray.
+    // So the icon should generally be light.
+    setIsHeaderDark(true) // Simplified: assume header is always dark enough for light icon
+  }, [])
+
+  const triggerButtonClasses = cn(
+    "relative",
+    isHeaderDark ? "text-brand-secondary-foreground hover:bg-white/10" : "text-foreground hover:bg-muted",
+  )
 
   if (!isCartLoaded) {
     return (
-      <Button variant='ghost' size='icon' disabled className='relative'>
-        <ShoppingBag className='h-5 w-5' />
-        <span className='sr-only'>View Cart (Loading...)</span>
+      <Button variant="ghost" size="icon" disabled className={triggerButtonClasses}>
+        <ShoppingBag className={cartIconSize} />
+        <span className="sr-only">View Cart (Loading...)</span>
       </Button>
-    );
+    )
   }
 
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant='ghost' size='icon' className='relative'>
-          <ShoppingBag className='h-5 w-5' />
+        <Button variant="ghost" size="icon" className={triggerButtonClasses}>
+          <ShoppingBag className={cartIconSize} />
           {totalItems > 0 && (
-            <span className='absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground'>
+            <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
               {totalItems}
             </span>
           )}
-          <span className='sr-only'>View Cart</span>
+          <span className="sr-only">View Cart</span>
         </Button>
       </SheetTrigger>
-      <SheetContent className='flex h-full w-full flex-col p-0 sm:max-w-lg'>
-        {/* The default close button is part of SheetContent, so we remove our custom one from the header */}
-        <SheetHeader className='border-b p-4 sm:p-6'>
-          <SheetTitle className='text-lg font-medium'>Shopping Cart ({totalItems})</SheetTitle>
+      <SheetContent className="flex h-full w-full flex-col p-0 sm:max-w-lg">
+        <SheetHeader className="border-b p-4 sm:p-6">
+          <SheetTitle className="text-lg font-medium">Shopping Cart ({totalItems})</SheetTitle>
         </SheetHeader>
 
         {cartItems.length === 0 ? (
-          <div className='flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center'>
-            <ShoppingBag className='h-16 w-16 text-muted-foreground' />
-            <p className='text-xl font-medium text-muted-foreground'>Your cart is empty.</p>
+          <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
+            <ShoppingBag className="h-20 w-20 text-muted-foreground" />
+            <p className="text-xl font-medium text-muted-foreground">Your cart is empty.</p>
           </div>
         ) : (
           <>
-            <ScrollArea className='flex-1 min-h-0'>
-              <div className='flex flex-col gap-0 p-4 sm:p-6'>
+            <ScrollArea className="flex-1 min-h-0">
+              <div className="flex flex-col gap-0 p-4 sm:p-6">
                 {cartItems.map((item, index) => (
                   <div key={item.id}>
-                    <div className='flex items-start gap-4 py-4'>
-                      <div className='relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border'>
+                    <div className="flex items-start gap-4 py-4">
+                      <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border">
                         <Image
-                          src={item.images[0] || '/placeholder.svg?width=80&height=80&query=cart+item'}
+                          src={item.images[0] || "/placeholder.svg?width=80&height=80&query=cart+item"}
                           alt={item.name}
                           fill
-                          className='object-cover'
+                          className="object-cover"
                         />
                       </div>
-                      <div className='flex-1 min-w-0'>
+                      <div className="flex-1 min-w-0">
                         <Link
                           href={`/products/${item.id}`}
-                          className='text-sm font-medium hover:underline hover:text-primary block truncate'
+                          className="text-sm font-medium hover:underline hover:text-primary block truncate"
                         >
                           {item.name}
                         </Link>
-                        <p className='text-xs text-muted-foreground'>{formatPrice(item.price.amount, item.price.currency)}</p>
-                        <div className='mt-2 flex items-center gap-2'>
+                        <p className="text-xs text-muted-foreground">
+                          {formatPrice(item.price.amount, item.price.currency)}
+                        </p>
+                        <div className="mt-2 flex items-center gap-2">
                           <Input
-                            type='number'
-                            min='1'
+                            type="number"
+                            min="1"
                             value={item.quantity}
-                            onChange={e => updateQuantity(item.id, Number.parseInt(e.target.value, 10) || 1)}
-                            className='h-8 w-16 text-center'
+                            onChange={(e) => updateQuantity(item.id, Number.parseInt(e.target.value, 10) || 1)}
+                            className="h-8 w-16 text-center"
                             aria-label={`Quantity for ${item.name}`}
                           />
                         </div>
                       </div>
-                      <div className='flex flex-col items-end gap-1 flex-shrink-0'>
-                        <p className='text-sm font-medium text-right min-w-0 break-words'>
+                      <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                        <p className="text-sm font-medium text-right min-w-0 break-words">
                           {formatPrice(item.price.amount * item.quantity, item.price.currency)}
                         </p>
                         <Button
-                          variant='ghost'
-                          size='icon'
-                          className='h-8 w-8 text-muted-foreground hover:text-destructive'
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
                           onClick={() => removeFromCart(item.id)}
                           aria-label={`Remove ${item.name} from cart`}
                         >
-                          <Trash2 className='h-4 w-4' />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
@@ -110,14 +145,14 @@ export function CartSheet() {
                 ))}
               </div>
             </ScrollArea>
-            <SheetFooter className='flex-col gap-4 border-t bg-background p-4 sm:p-6'>
-              <div className='flex items-center justify-between gap-4'>
-                <p className='text-sm text-muted-foreground flex-shrink-0'>Subtotal</p>
-                <p className='text-lg font-semibold text-right flex-1 min-w-0 break-words'>{formatPrice(subtotal)}</p>
+            <SheetFooter className="flex-col gap-4 border-t bg-background p-4 sm:p-6">
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-sm text-muted-foreground flex-shrink-0">Subtotal</p>
+                <p className="text-lg font-semibold text-right flex-1 min-w-0 break-words">{formatPrice(subtotal)}</p>
               </div>
               <SheetClose asChild>
-                <Button asChild className='w-full'>
-                  <Link href='/checkout'>Proceed to Checkout</Link>
+                <Button asChild className="w-full">
+                  <Link href="/checkout">Proceed to Checkout</Link>
                 </Button>
               </SheetClose>
             </SheetFooter>
@@ -125,5 +160,5 @@ export function CartSheet() {
         )}
       </SheetContent>
     </Sheet>
-  );
+  )
 }
