@@ -1,7 +1,14 @@
 // src/lib/api-client.ts
 import type { Product, Category, Order, CheckoutItem } from '@/types/app';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+if (!API_BASE_URL && typeof window !== 'undefined') {
+  // Throw error only on client-side if var is missing, server-side might be okay if using relative paths for internal API
+  // Or if you expect it to always be set, throw unconditionally:
+  // throw new Error("NEXT_PUBLIC_API_URL is not defined. Please set it in your environment variables.");
+  console.warn("NEXT_PUBLIC_API_URL is not defined. API calls might fail if it's required.");
+}
 
 /**
  * A generic fetch function to handle API requests, parsing, and error handling.
@@ -12,7 +19,8 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
  * @throws An error for non-404 client errors or server errors if not handled as "not found".
  */
 async function fetcher<T>(endpoint: string, options: RequestInit = {}): Promise<T | null> {
-  const url = `${API_BASE_URL}${endpoint}`;
+  const base = API_BASE_URL || ''; // Fallback to empty string if undefined
+  const url = `${base}${endpoint}`;
   try {
     const res = await fetch(url, options);
 

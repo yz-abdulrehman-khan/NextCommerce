@@ -2,8 +2,7 @@
 
 import type { Product } from '@/types/app';
 import { createContext, useContext, useState, type ReactNode, useCallback, useEffect } from 'react';
-
-const LOCAL_STORAGE_CART_KEY = 'eCommerceAppCart';
+import { LOCAL_STORAGE_CART_KEY } from '@/config/constants';
 
 export interface CartItem extends Product {
   quantity: number;
