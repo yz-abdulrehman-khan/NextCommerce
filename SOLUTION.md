@@ -158,38 +158,39 @@ The development approach prioritized a **server-first methodology** for content-
 
 ### Installation
 
-\`\`\`bash
+
+```bash
 # Clone project & navigate to project root
 npm install
 # or
 yarn install
-\`\`\`
+```
 
 ### Running the Development Server
 
-\`\`\`bash
+```bash
 npm run dev
 # or
 yarn dev
-\`\`\`
+```
 
 Open your browser → [http://localhost:3000](http://localhost:3000)
 
 ### Building for Production
 
-\`\`\`bash
+```bash
 npm run build
 # or
 yarn build
-\`\`\`
+```
 
 ### Running the Production Server
 
-\`\`\`bash
+```bash
 npm start
 # or
 yarn start
-\`\`\`
+```
 
 Visit → [http://localhost:3000](http://localhost:3000)
 
