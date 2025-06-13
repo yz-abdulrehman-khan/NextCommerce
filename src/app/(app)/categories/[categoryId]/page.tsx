@@ -1,3 +1,4 @@
+// src/app/(app)/categories/[categoryId]/page.tsx
 // This page displays products within a specific category.
 // Strategy: Incremental Static Regeneration (ISR).
 // - Category details: Fetched with a long revalidation period (1 day), as they change infrequently.
@@ -9,7 +10,8 @@ import type { Category, Product } from '@/types/app';
 import { ProductCard } from '@/components/product/product-card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { AlertTriangle, PackageSearch } from 'lucide-react';
+import { AlertTriangle, PackageSearch } from 'lucide-react'; // Added ServerCrash for generic errors
+import { ErrorMessage } from '@/components/common/error-message';
 
 interface CategoryPageProps {
   params: {
@@ -23,18 +25,19 @@ async function getCategoryDetailsById(categoryId: string): Promise<Category | nu
   try {
     const res = await fetch(apiUrl, { next: { revalidate: 86400 } }); // ISR: Revalidate category details every 1 day
     if (!res.ok) {
-      console.error(`Failed to fetch category details for ID ${categoryId}, status:`, res.status);
-      return null;
+      if (res.status === 404) return null; // Explicitly handle 404 as "not found"
+      throw new Error(`Failed to fetch category details for ID ${categoryId}. Status: ${res.status}`);
     }
     const jsonResponse = await res.json();
     if (!jsonResponse.success || !jsonResponse.data) {
-      console.error(`Failed to fetch category details for ID ${categoryId}, invalid response:`, jsonResponse);
-      return null;
+      // If success is true but data is null, it's a valid "not found" from API
+      if (jsonResponse.success && jsonResponse.data === null) return null;
+      throw new Error(`Failed to fetch category details for ID ${categoryId}: Invalid API response.`);
     }
     return jsonResponse.data;
   } catch (error) {
     console.error(`Error fetching category details for ID ${categoryId} from ${apiUrl}:`, error);
-    return null;
+    throw error;
   }
 }
 
@@ -44,25 +47,44 @@ async function getProductsByCategorySlug(categorySlug: string): Promise<Product[
   try {
     const res = await fetch(apiUrl, { next: { revalidate: 3600 } }); // ISR: Revalidate products in category every 1 hour
     if (!res.ok) {
-      console.error(`Failed to fetch products for category slug ${categorySlug}, status:`, res.status);
-      return [];
+      throw new Error(`Failed to fetch products for category slug ${categorySlug}. Status: ${res.status}`);
     }
     const jsonResponse = await res.json();
     if (!jsonResponse.success || !Array.isArray(jsonResponse.data)) {
-      console.error(`Failed to fetch products for category slug ${categorySlug}, invalid response:`, jsonResponse);
-      return [];
+      throw new Error(`Failed to fetch products for category slug ${categorySlug}: Invalid API response.`);
     }
     return jsonResponse.data;
   } catch (error) {
     console.error(`Error fetching products for category slug ${categorySlug} from ${apiUrl}:`, error);
-    return [];
+    throw error;
   }
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
-  const category = await getCategoryDetailsById(params.categoryId);
+  let category: Category | null = null;
+  let products: Product[] = [];
+  let categoryError: Error | null = null;
+  let productsError: Error | null = null;
 
-  if (!category) {
+  try {
+    category = await getCategoryDetailsById(params.categoryId);
+    if (category) {
+      try {
+        products = await getProductsByCategorySlug(category.slug);
+      } catch (err) {
+        productsError = err instanceof Error ? err : new Error('Failed to load products for this category.');
+      }
+    }
+  } catch (err) {
+    categoryError = err instanceof Error ? err : new Error('Failed to load category details.');
+  }
+
+  if (categoryError) {
+    return <ErrorMessage title='Error Loading Category' message={categoryError.message} fullPage={false} />;
+  }
+
+  // If category fetch was successful but returned null (404)
+  if (!category && !categoryError) {
     return (
       <div className='container py-10 text-center'>
         <AlertTriangle className='mx-auto h-12 w-12 text-destructive mb-4' />
@@ -75,8 +97,6 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     );
   }
 
-  const products = await getProductsByCategorySlug(category.slug);
-
   return (
     <div className='container'>
       <div className='mb-8 text-center md:text-left'>
@@ -86,7 +106,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         )}
       </div>
 
-      {products.length > 0 ? (
+      {productsError ? (
+        <ErrorMessage title='Could Not Load Products' message={productsError.message} fullPage={false} />
+      ) : products.length > 0 ? (
         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
           {products.map(product => (
             <ProductCard key={product.id} product={product} />

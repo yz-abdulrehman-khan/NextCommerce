@@ -1,3 +1,4 @@
+// src/app/(app)/products/[productId]/page.tsx
 // This page displays details for a single product.
 // Strategy: Incremental Static Regeneration (ISR).
 // Product details (like price, description, images) might change.
@@ -10,7 +11,8 @@ import type { Product } from '@/types/app';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { AlertTriangle } from 'lucide-react';
-import { ProductDetailClientShell } from '@/components/product/product-detail-client-shell';
+import { ErrorMessage } from '@/components/common/error-message';
+import { ProductDetailClientShell } from '@/components/product/product-detail-client-shell'; // Import the client component
 
 interface ProductPageProps {
   params: {
@@ -24,27 +26,42 @@ async function getProduct(productId: string): Promise<Product | null> {
     // ISR: Revalidate product details every 10 minutes
     const res = await fetch(apiUrl, { next: { revalidate: 600 } });
     if (!res.ok) {
-      // This will be caught by the error boundary or return null
-      console.error(`Failed to fetch product ${productId}, status:`, res.status);
-      return null;
+      if (res.status === 404) return null; // Explicitly handle 404 as "not found"
+      throw new Error(`Failed to fetch product ${productId}. Status: ${res.status}`);
     }
     const jsonResponse = await res.json();
     if (!jsonResponse.success || !jsonResponse.data) {
-      console.error(`Failed to fetch product ${productId}, invalid response:`, jsonResponse);
-      return null;
+      // If success is true but data is null, it's a valid "not found" from API
+      if (jsonResponse.success && jsonResponse.data === null) return null;
+      throw new Error(`Failed to fetch product ${productId}: Invalid API response.`);
     }
     return jsonResponse.data;
   } catch (error) {
     console.error(`Error fetching product ${productId} from ${apiUrl}:`, error);
-    return null; // Let the page handle the null product case
+    throw error;
   }
 }
 
 // This is now a Server Component
 export default async function ProductPage({ params }: ProductPageProps) {
-  const product = await getProduct(params.productId);
+  let product: Product | null = null;
+  let fetchError: Error | null = null;
 
-  if (!product) {
+  try {
+    product = await getProduct(params.productId);
+  } catch (error) {
+    fetchError = error instanceof Error ? error : new Error('An unknown error occurred');
+  }
+
+  if (fetchError) {
+    return (
+      <div className='container'>
+        <ErrorMessage title='Error Loading Product' message={fetchError.message} fullPage={false} />
+      </div>
+    );
+  }
+
+  if (!product && !fetchError) {
     return (
       <div className='container py-10 text-center'>
         <AlertTriangle className='mx-auto h-12 w-12 text-destructive mb-4' />

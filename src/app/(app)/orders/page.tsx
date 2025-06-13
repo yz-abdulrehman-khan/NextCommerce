@@ -7,9 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, AlertCircle, ShoppingBag, History, ChevronDown, ChevronUp } from 'lucide-react';
+import { ShoppingBag, History, ChevronDown, ChevronUp } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { LoadingState } from '@/components/common/loading-state';
+import { ErrorMessage } from '@/components/common/error-message';
 
 const formatPrice = (price: number, currency = 'USD') => {
   return new Intl.NumberFormat('en-US', {
@@ -36,20 +38,23 @@ const formatShortId = (id: string): string => {
 const getStatusVariant = (status: Order['status']): 'default' | 'secondary' | 'destructive' | 'outline' => {
   switch (status) {
     case 'COMPLETED':
-      return 'default';
+      return 'default'; // Greenish in custom styles
     case 'PENDING':
-      return 'secondary';
+      return 'secondary'; // Yellowish in custom styles
     case 'CANCELLED':
-      return 'destructive';
+      return 'destructive'; // Reddish in custom styles
     default:
       return 'outline';
   }
 };
 
 const statusStyles = {
-  COMPLETED: 'bg-green-100 text-green-800 border-green-300 hover:bg-green-200',
-  PENDING: 'bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200',
-  CANCELLED: 'bg-red-100 text-red-800 border-red-300 hover:bg-red-200',
+  COMPLETED:
+    'bg-green-100 text-green-800 border-green-300 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700 dark:hover:bg-green-900/50',
+  PENDING:
+    'bg-yellow-100 text-yellow-800 border-yellow-300 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700 dark:hover:bg-yellow-900/50',
+  CANCELLED:
+    'bg-red-100 text-red-800 border-red-300 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700 dark:hover:bg-red-900/50',
 };
 
 const ITEMS_PREVIEW_COUNT = 2;
@@ -107,8 +112,6 @@ export default function OrdersPage() {
       <>
         {itemsToShow.map(item => (
           <div key={item.id} className='flex items-center justify-between gap-4 py-1'>
-            {' '}
-            {/* Reduced py-1 from py-2 */}
             <div className='flex items-center gap-3 min-w-0'>
               <div className='w-10 h-10 bg-muted rounded-md flex items-center justify-center text-muted-foreground flex-shrink-0'>
                 <ShoppingBag size={20} />
@@ -126,7 +129,7 @@ export default function OrdersPage() {
           <Button
             variant='link'
             size='sm'
-            className='w-full mt-2 text-primary hover:text-primary/80 px-0' // Added px-0 to align with items
+            className='w-full mt-2 text-primary hover:text-primary/80 px-0'
             onClick={() => toggleShowAllItems(orderId)}
           >
             {isExpanded ? (
@@ -145,22 +148,21 @@ export default function OrdersPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className='container py-8 md:py-12 flex flex-col items-center justify-center min-h-[calc(100vh-200px)]'>
-        <Loader2 className='w-12 h-12 text-primary animate-spin mb-4' />
-        <p className='text-lg text-muted-foreground'>Loading your orders...</p>
-      </div>
-    );
+    return <LoadingState message='Loading your orders...' fullPage />;
   }
 
   if (error) {
     return (
-      <div className='container py-8 md:py-12 text-center'>
-        <AlertCircle className='mx-auto h-16 w-16 text-destructive mb-6' />
-        <h1 className='text-3xl font-semibold mb-4'>Failed to Load Orders</h1>
-        <p className='text-muted-foreground mb-8'>{error}</p>
-        <Button onClick={() => window.location.reload()}>Try Again</Button>
-      </div>
+      <ErrorMessage
+        title='Failed to Load Orders'
+        message={error}
+        onRetry={() => {
+          // Re-trigger fetchOrders by resetting state and calling it again
+          // Or simply reload for now if fetchOrders dependency array is correct
+          window.location.reload();
+        }}
+        fullPage
+      />
     );
   }
 
@@ -190,8 +192,6 @@ export default function OrdersPage() {
         {orders.map(order => (
           <Card key={order.id} className='overflow-hidden'>
             <CardHeader className='bg-muted/30 p-4 sm:px-6 sm:py-4 pb-2 sm:pb-2'>
-              {' '}
-              {/* Reduced bottom padding */}
               <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
                 <div>
                   <CardTitle className='text-lg sm:text-xl'>
@@ -201,20 +201,14 @@ export default function OrdersPage() {
                 </div>
                 <Badge
                   variant={getStatusVariant(order.status)}
-                  className={cn('px-3 py-1 text-xs sm:text-sm', statusStyles[order.status])}
+                  className={cn('px-3 py-1 text-xs sm:text-sm font-medium', statusStyles[order.status])}
                 >
                   {order.status.charAt(0).toUpperCase() + order.status.slice(1).toLowerCase()}
                 </Badge>
               </div>
             </CardHeader>
             <CardContent className='p-4 sm:px-6 sm:py-4 pt-2 sm:pt-3'>
-              {' '}
-              {/* Reduced top padding */}
-              <div className='grid gap-3'>
-                {' '}
-                {/* Increased gap from gap-2 to gap-3 for more space between items */}
-                {renderOrderItems(order.cart.items, order.id)}
-              </div>
+              <div className='grid gap-3'>{renderOrderItems(order.cart.items, order.id)}</div>
             </CardContent>
             <Separator />
             <CardFooter className='bg-muted/30 p-4 sm:px-6 sm:py-4 flex flex-col sm:flex-row items-center justify-between gap-4'>

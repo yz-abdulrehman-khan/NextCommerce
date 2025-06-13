@@ -22,6 +22,7 @@ import Link from 'next/link';
 import { AlertTriangle, ShoppingCart, CreditCard, Home, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { LoadingState } from '@/components/common/loading-state';
 
 const formatPrice = (price: number, currency = 'USD') => {
   return new Intl.NumberFormat('en-US', {
@@ -232,14 +233,7 @@ export default function CheckoutPage() {
   };
 
   if (!isCartLoaded) {
-    return (
-      <div className='container py-8 md:py-12 flex justify-center items-center min-h-[calc(100vh-200px)]'>
-        <div className='flex flex-col items-center gap-2'>
-          <Loader2 className='w-8 h-8 text-primary animate-spin' />
-          <p className='text-muted-foreground'>Loading checkout...</p>
-        </div>
-      </div>
-    );
+    return <LoadingState message='Loading checkout...' fullPage />;
   }
 
   if (cartItems.length === 0 && isCartLoaded) {
