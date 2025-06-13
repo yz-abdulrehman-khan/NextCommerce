@@ -16,7 +16,7 @@ export function Footer() {
           </div>
           <div className='grid gap-1'>
             <h3 className='font-semibold'>Shop</h3>
-            <Link href='/products' className='text-sm text-muted-foreground hover:text-foreground'>
+            <Link href='/' className='text-sm text-muted-foreground hover:text-foreground'>
               All Products
             </Link>
             <Link href='/categories' className='text-sm text-muted-foreground hover:text-foreground'>

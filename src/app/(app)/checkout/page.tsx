@@ -168,6 +168,16 @@ export default function CheckoutPage() {
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       setIsSubmitting(false);
+      toast({
+        variant: 'destructive',
+        title: (
+          <div className='flex items-center gap-2'>
+            <AlertCircle className='h-5 w-5' />
+            <span className='font-bold'>Validation Error</span>
+          </div>
+        ),
+        description: 'Please correct the errors in the form.',
+      });
       return;
     }
     setFormErrors({});
@@ -237,7 +247,7 @@ export default function CheckoutPage() {
           You have no items in your cart to checkout. Add some products to get started!
         </p>
         <Button asChild size='lg'>
-          <Link href='/products'>Continue Shopping</Link>
+          <Link href='/'>Continue Shopping</Link>
         </Button>
       </div>
     );

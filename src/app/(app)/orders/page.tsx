@@ -171,7 +171,7 @@ export default function OrdersPage() {
         <h1 className='text-3xl font-semibold mb-4'>No Orders Yet</h1>
         <p className='text-muted-foreground mb-8'>You haven't placed any orders. Start shopping to see them here!</p>
         <Button asChild size='lg'>
-          <Link href='/products'>Start Shopping</Link>
+          <Link href='/'>Start Shopping</Link>
         </Button>
       </div>
     );

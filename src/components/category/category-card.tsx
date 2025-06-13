@@ -9,8 +9,8 @@ interface CategoryCardProps {
 
 export function CategoryCard({ category }: CategoryCardProps) {
   return (
-    // Link using category.slug
-    <Link href={`/categories/${category.slug}`} className='block group'>
+    // Link using category.id now
+    <Link href={`/categories/${category.id}`} className='block group'>
       <Card className='overflow-hidden h-full transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1'>
         <CardHeader className='p-0 relative aspect-video'>
           <Image
@@ -19,6 +19,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
             width={400}
             height={225}
             className='object-cover w-full h-full'
+            sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
           />
         </CardHeader>
         <div className='p-4'>
