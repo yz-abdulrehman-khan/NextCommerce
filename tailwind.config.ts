@@ -10,12 +10,11 @@ const config: Config = {
     '*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-    // Add this container configuration
     container: {
       center: true,
-      padding: '1rem', // 2rem on larger screens
+      padding: '1rem',
       screens: {
-        '2xl': '1280px', // Set max-width for the container
+        '2xl': '1280px',
       },
     },
     extend: {
@@ -85,6 +84,26 @@ const config: Config = {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
+      },
+      keyframes: {
+        fadeInUp: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        scaleIn: {
+          '0%': { opacity: '0', transform: 'scale(0.9)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        pulseCheck: {
+          '0%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.25)' },
+          '100%': { transform: 'scale(1)' },
+        },
+      },
+      animation: {
+        fadeInUp: 'fadeInUp 0.5s ease-out forwards',
+        scaleIn: 'scaleIn 0.3s ease-out forwards',
+        pulseCheck: 'pulseCheck 0.5s ease-in-out',
       },
     },
   },

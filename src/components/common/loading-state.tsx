@@ -12,7 +12,7 @@ interface LoadingStateProps {
 export function LoadingState({
   message = 'Loading...',
   className,
-  iconClassName = 'h-8 w-8', // Default size
+  iconClassName = 'h-8 w-8',
   textClassName = 'text-muted-foreground',
   fullPage = false,
 }: LoadingStateProps) {
@@ -21,8 +21,8 @@ export function LoadingState({
       role='status'
       aria-live='polite'
       className={cn(
-        'flex flex-col items-center justify-center gap-3 text-center',
-        fullPage ? 'min-h-[calc(100vh-200px)] py-10' : 'py-10', // Adjust height for full page
+        'flex flex-col items-center justify-center gap-3 text-center animate-fadeInUp',
+        fullPage ? 'min-h-[calc(100vh-200px)] py-10' : 'py-10',
         className,
       )}
     >

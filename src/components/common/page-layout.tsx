@@ -7,5 +7,5 @@ interface PageLayoutProps {
 }
 
 export function PageLayout({ children, className }: PageLayoutProps) {
-  return <div className={cn('container py-8 md:py-12', className)}>{children}</div>;
+  return <div className={cn('container py-8 md:py-12 animate-fadeInUp', className)}>{children}</div>;
 }
